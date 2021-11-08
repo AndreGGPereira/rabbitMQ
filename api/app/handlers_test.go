@@ -8,6 +8,7 @@ import (
 
 //Implementar testes
 func TestCreateClientHandler(t *testing.T) {
+
 }
 
 func TestUpdateClientHandler(t *testing.T) {}
