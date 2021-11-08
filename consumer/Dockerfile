@@ -7,9 +7,6 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-# Copy the code into the container.
-##COPY ./consumer/main.go .
-#COPY ./main.go .
 COPY . .
 
 # Set necessary environment variables needed 

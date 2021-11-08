@@ -8,39 +8,29 @@ services:
     ports:
       - 5672:5672 # for sender and consumer connections
       - 15672:15672 # for serve RabbitMQ GUI
-    volumes:
-    #  - ${HOME}/dev-rabbitmq/data/:/var/lib/rabbitmq
-    #  - ${HOME}/dev-rabbitmq/log/:/var/log/rabbitmq
-        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+  #  volumes:
+    ##  - ${HOME}/dev-rabbitmq/data/:/var/lib/rabbitmq
+    ##  - ${HOME}/dev-rabbitmq/log/:/var/log/rabbitmq
+    #  - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+    #  - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     restart: always
     networks:
       - dev-network
 
-  postgres-compose:
+  db:
     image: postgres
     environment:
-      POSTGRES_USERNAME: "postgres"
-      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nuveo
     ports:
-      - "5432:5432"
+      - "15432:5432"
     volumes:
       - /home/andre/PostgreSQL:/var/lib/postgresql/data
     networks:
-      - postgres-compose-network
+      - postgres-network
       
-  pgadmin-compose:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "postgres@email.com"
-      PGADMIN_DEFAULT_PASSWORD: "postgres"
-    ports:
-      - "15432:80"
-    depends_on:
-      - postgres-compose
-    networks:
-      - postgres-compose-network      
-  # Create service 
+  # Create service api
   api:
     container_name: api
     ports:
@@ -48,14 +38,16 @@ services:
     build:
     #  context: .
       dockerfile: Dockerfile
-      context: ./api/
+      context: ./api
     environment:
       AMQP_SERVER_URL: amqp://guest:guest@message-broker:5672/
     restart: always
     networks:
       - dev-network
+      - postgres-network
     depends_on:
       - message-broker
+      - db
 
   # Create service with message consumer.
   consumer:
@@ -70,12 +62,13 @@ services:
     networks:
       - dev-network
     depends_on:
-      - api
       - message-broker
+      - api
+      
 
 networks:
   # Create a new Docker network.
   dev-network:
     driver: bridge
-  postgres-compose-network:
+  postgres-network:
     driver: bridge  

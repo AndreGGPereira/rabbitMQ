@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/joho/godotenv"
 	"github.com/streadway/amqp"
 )
 
@@ -21,20 +20,24 @@ type Cliente struct {
 
 func main() {
 
-	// Define RabbitMQ server URL.
+	//Pegar o valor da .env
 	amqpServerURL := os.Getenv("AMQP_SERVER_URL")
 
-	// Create a new RabbitMQ connection.
+	if amqpServerURL == "" {
+		amqpServerURL = "amqp://guest:guest@localhost:5672/"
+
+	}
+	// Cria a conexão com RabbitMQ.
 	conn, err := amqp.Dial(amqpServerURL)
-	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	if err != nil {
-		fmt.Println("Failed Initializing Broker Connection")
-		panic(err)
+		fmt.Printf("Failed Initializing Broker Connection, error: %s", err.Error())
 	}
 	defer conn.Close()
 
+	//Cria um canal de comunicação
 	ch, err := conn.Channel()
 	if err != nil {
+		fmt.Printf("erro ao tentar conectar, error: %s", err.Error())
 		panic(err)
 	}
 	defer ch.Close()
@@ -48,7 +51,7 @@ func main() {
 		nil,             // arguments
 	)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Falha ao declarar uma fila error: %s", err.Error())
 	}
 
 	msgs, err := ch.Consume(
@@ -61,7 +64,7 @@ func main() {
 		nil,    // args
 	)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Falha ao consumir uma fila error: %s", err.Error())
 	}
 
 	forever := make(chan bool)
@@ -74,9 +77,8 @@ func main() {
 			if err != nil {
 				log.Printf("Error decoding JSON: %s", err)
 			}
-
 			log.Printf(" > Received message: %s\n", d.Body)
-			err = novoCliente(c)
+			err = newClient(c)
 			if err != nil {
 				log.Printf("Error save new client, err")
 			} else {
@@ -88,18 +90,19 @@ func main() {
 	<-forever
 }
 
-func novoCliente(c *Cliente) error {
+//Salva um novo cliente em uma arquivo .json
+func newClient(c *Cliente) error {
 
-	if err := godotenv.Load(); err != nil {
-		log.Print("No .env file found")
-	}
-
+	var dir string
 	if os.Getenv("NOVOS_CLIENTES") == "" {
 		fmt.Println("warning: environment variable NOVOS_CLIENTES is not set")
+		dir = "clientes"
+	} else {
+		dir = os.Getenv("NOVOS_CLIENTES")
 	}
 
-	dir := os.Getenv("NOVOS_CLIENTES")
-
+	//Verificar se o nome da pasta ja existe
+	//Caso não exita cria com noma passado na .env
 	if _, err := os.Stat(dir); err != nil {
 		if os.IsNotExist(err) {
 			e := os.Mkdir(dir, 0755)
@@ -111,20 +114,22 @@ func novoCliente(c *Cliente) error {
 		}
 	}
 
+	//Cria o arquivo json
 	newFile := filepath.Join(dir, c.UUID) + ".json"
 	nf, err := os.Create(newFile)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf(" > Falha ao criar o arquivo err: %s\n", err)
 		os.Exit(3)
 	}
 	defer nf.Close()
 
 	b, err := json.Marshal(c)
 	if err != nil {
-		fmt.Println("Failed encode", err)
+		log.Printf(" > Falha ao converção err: %s\n", err)
 		return err
 	}
 
+	//escrevi o arquivo os dados recebido na mensagem
 	if _, err := nf.Write([]byte(b)); err != nil {
 		fmt.Println(err)
 		os.Exit(3)

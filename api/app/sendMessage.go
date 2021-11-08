@@ -1,6 +1,7 @@
-package main
+package app
 
 import (
+	"api/app/models"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -8,37 +9,32 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func sendMessage(c *Cliente) error {
+//sendMessage função que envia mesagem ao RabbitMQ
+func sendMessage(c *models.Cliente) error {
 
-	//url := os.Getenv("AMQP_URL")
-	//	if url == "" {
-	//		url = "amqp://guest:guest@localhost:5672"
-	//	}
-
-	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-
-	// Define RabbitMQ server URL.
-
+	//Pegar o valor da varial de ambiente
 	amqpServerURL := os.Getenv("AMQP_SERVER_URL")
 
-	// Create a new RabbitMQ connection.
+	if amqpServerURL == "" {
+		amqpServerURL = "amqp://guest:guest@localhost:5672/"
+
+	}
+	// Cria uma nova coneção com o RabbitMQ.
 	conn, err := amqp.Dial(amqpServerURL)
 	if err != nil {
-		panic(err)
-	}
-
-	//	conn, err := amqp.Dial(url)
-	if err != nil {
-		panic("could not establish connection with RabbitMQ:" + err.Error())
+		fmt.Printf("não foi possivel estabelecer a conexão com RabbitMQ, error: %s", err)
+		return err
 	}
 	defer conn.Close()
 
 	ch, err := conn.Channel()
 	if err != nil {
-		panic("could not open RabbitMQ channel:" + err.Error())
+		fmt.Printf("não foi possivel criar o canal de comunicação com RabbitMQ, error: %s", err.Error())
+		return err
 	}
 	defer ch.Close()
 
+	//Cria uma fila para que o consumer possa receber as mensagens
 	q, err := ch.QueueDeclare(
 		"QueueService1", // name
 		false,           // durable
@@ -49,7 +45,7 @@ func sendMessage(c *Cliente) error {
 	)
 
 	if err != nil {
-		panic("could not open RabbitMQ channel:" + err.Error())
+		panic("could not open RabbitMQ channel err :" + err.Error())
 	}
 
 	body, err := json.Marshal(c)
@@ -58,6 +54,7 @@ func sendMessage(c *Cliente) error {
 		return err
 	}
 
+	//Publica a mensagem
 	err = ch.Publish(
 		"",     // exchange
 		q.Name, // routing key
