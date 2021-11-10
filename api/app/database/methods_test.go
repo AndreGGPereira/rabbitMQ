@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestClient(t *testing.T) {
+func TestCreateClient(t *testing.T) {
 	d := &DB{}
 	d.Open()
 
