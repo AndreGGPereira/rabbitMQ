@@ -13,10 +13,10 @@ import (
 )
 
 // https://magefile.org
-
+// use o camando "mage up" para subir os migrations
 func Migration(action string) {
 	source := "./app/database/migrations/"
-	url := "postgres://postgres:postgres@localhost:15432/nuveo?sslmode=disable"
+	url := "postgres://postgres:postgres@localhost:15432/mydatabase?sslmode=disable"
 	_, _, err := migration.Run(context.Background(), source, url, action)
 	if err != nil {
 		fmt.Println("Migration err :", err)

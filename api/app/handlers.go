@@ -18,7 +18,7 @@ func (a *App) IndexHandler() http.HandlerFunc {
 //CreateClientHandler
 func (a *App) CreateClientHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		req := models.Cliente{}
+		req := models.Client{}
 		err := parse(w, r, &req)
 		if err != nil {
 			log.Printf("Cannot parse post body. err=%v \n", err)
@@ -26,12 +26,12 @@ func (a *App) CreateClientHandler() http.HandlerFunc {
 			return
 		}
 
-		c := &models.Cliente{
-			Nome:     req.Nome,
-			Endereco: req.Endereco,
+		c := &models.Client{
+			Name:    req.Name,
+			Address: req.Address,
 		}
 		c.UUID = uuid.New().String()
-		c.Cadastrado_em = timeNowFormatted()
+		c.Created_at = timeNowFormatted()
 
 		err = a.DB.CreateClient(c)
 		if err != nil {
@@ -51,7 +51,7 @@ func (a *App) CreateClientHandler() http.HandlerFunc {
 
 func (a *App) UpdateClientHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		req := models.Cliente{}
+		req := models.Client{}
 		err := parse(w, r, &req)
 
 		if err != nil {
@@ -68,13 +68,13 @@ func (a *App) UpdateClientHandler() http.HandlerFunc {
 		}
 
 		// Create the Client
-		c := &models.Cliente{
-			UUID:          uuid,
-			Nome:          req.Nome,
-			Endereco:      req.Endereco,
-			Cadastrado_em: req.Cadastrado_em,
+		c := &models.Client{
+			UUID:       uuid,
+			Name:       req.Name,
+			Address:    req.Address,
+			Created_at: req.Created_at,
 		}
-		c.Atualizado_em = timeNowFormatted()
+		c.Updated_at = timeNowFormatted()
 
 		// Save in DB
 		err = a.DB.UpdateClient(c)
@@ -111,7 +111,7 @@ func (a *App) GetClientByIDHandler() http.HandlerFunc {
 		cliente, err := a.DB.GetClientById(uuid)
 
 		if err != nil {
-			log.Printf("Cannot get cliente in DB. err=%v \n", err)
+			log.Printf("Cannot get client in DB. err=%v \n", err)
 			sendResponse(w, r, nil, http.StatusInternalServerError)
 			return
 		}
@@ -123,14 +123,12 @@ func (a *App) GetClientByIDHandler() http.HandlerFunc {
 func (a *App) DeleteClientHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		uuid := getParameter(r)
-		fmt.Println("dados", uuid)
 
 		if uuid == "" {
 			log.Printf("Cannot get uuid in request")
 			sendResponse(w, r, nil, http.StatusNotFound)
 			return
 		}
-
 		// Delete in DB
 		err := a.DB.DeleteClient(uuid)
 		if err != nil {

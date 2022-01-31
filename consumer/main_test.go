@@ -10,11 +10,11 @@ import (
 
 func TestNewClient(t *testing.T) {
 
-	c := &Cliente{
-		UUID:          "uuid",
-		Nome:          "Andre",
-		Endereco:      "Rua",
-		Cadastrado_em: time.Now().String(),
+	c := &Client{
+		UUID:       "uuid",
+		Name:       "Andre",
+		Address:    "Rua",
+		Created_at: time.Now().String(),
 	}
 
 	dirTest := "tmp"
@@ -51,7 +51,7 @@ func TestNewClient(t *testing.T) {
 
 	err = os.RemoveAll(dirTest)
 	if err != nil {
-		t.Errorf(" > Falha  ao remover novoarquivo: %s\n", err)
+		t.Errorf(" > Falha  ao remover novo arquivo: %s\n", err)
 	}
 
 }

@@ -10,12 +10,12 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type Cliente struct {
-	UUID          string `json:"uuid,omitempty"`
-	Nome          string `json:"nome,omitempty"`
-	Endereco      string `json:"endereco,omitempty"`
-	Cadastrado_em string `json:"cadastrado_em,omitempty"`
-	Atualizado_em string `json:"atualizado_em,omitempty"`
+type Client struct {
+	UUID       string `json:"uuid,omitempty"`
+	Name       string `json:"name,omitempty"`
+	Address    string `json:"address,omitempty"`
+	Created_at string `json:"created_at,omitempty"`
+	Updated_at string `json:"updated_at,omitempty"`
 }
 
 func main() {
@@ -72,7 +72,7 @@ func main() {
 	go func() {
 		for d := range msgs {
 
-			c := &Cliente{}
+			c := &Client{}
 			err := json.Unmarshal(d.Body, c)
 			if err != nil {
 				log.Printf("Error decoding JSON: %s", err)
@@ -91,14 +91,14 @@ func main() {
 }
 
 //Salva um novo cliente em uma arquivo .json
-func newClient(c *Cliente) error {
+func newClient(c *Client) error {
 
 	var dir string
-	if os.Getenv("NOVOS_CLIENTES") == "" {
-		fmt.Println("warning: environment variable NOVOS_CLIENTES is not set")
+	if os.Getenv("NOVOS_CLIENTS") == "" {
+		fmt.Println("warning: environment variable NOVOS_CLIENTS is not set")
 		dir = "clientes"
 	} else {
-		dir = os.Getenv("NOVOS_CLIENTES")
+		dir = os.Getenv("NOVOS_CLIENTS")
 	}
 
 	//Verificar se o nome da pasta ja existe

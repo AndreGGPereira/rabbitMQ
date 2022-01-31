@@ -10,7 +10,7 @@ import (
 )
 
 //sendMessage função que envia mesagem ao RabbitMQ
-func sendMessage(c *models.Cliente) error {
+func sendMessage(c *models.Client) error {
 
 	//Pegar o valor da varial de ambiente
 	amqpServerURL := os.Getenv("AMQP_SERVER_URL")
