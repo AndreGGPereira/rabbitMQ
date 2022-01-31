@@ -14,7 +14,7 @@ func TestCreateClient(t *testing.T) {
 	d.Open()
 
 	c := models.Client{
-		UUID:    "0ddc782b-6618-4788-a65d-2499028487e6",
+		UUID:    "0ddc782b-6618-4788-a65d-2499028487e5",
 		Name:    "Nome",
 		Address: "Endereco",
 	}
@@ -29,7 +29,7 @@ func TestUpdateClientClient(t *testing.T) {
 	d.Open()
 
 	c := models.Client{
-		UUID:    "0ddc782b-6618-4788-a65d-2499028487e6",
+		UUID:    "0ddc782b-6618-4788-a65d-2499028487e5",
 		Name:    "Nome Up",
 		Address: "Endereco Up",
 	}
@@ -44,7 +44,7 @@ func TestGetClientById(t *testing.T) {
 	d := &DB{}
 	d.Open()
 	var cliente models.ClientResponse
-	err := d.db.Get(&cliente, selectClientByIDSchema, "0ddc782b-6618-4788-a65d-2499028487e6")
+	err := d.db.Get(&cliente, selectClientByIDSchema, "0ddc782b-6618-4788-a65d-2499028487e5")
 	assert.NoError(t, err)
 }
 
@@ -61,6 +61,6 @@ func TestGetClients(t *testing.T) {
 func TestDeleteClient(t *testing.T) {
 	d := &DB{}
 	d.Open()
-	_, err := d.db.Exec(deleteClientSchema, "0ddc782b-6618-4788-a65d-2499028487e6")
+	_, err := d.db.Exec(deleteClientSchema, "0ddc782b-6618-4788-a65d-2499028487e5")
 	assert.NoError(t, err)
 }

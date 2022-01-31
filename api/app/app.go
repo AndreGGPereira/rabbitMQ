@@ -43,11 +43,11 @@ func New() *App {
 //Instanciação das rotas
 func (a *App) initRoutes() {
 	a.Router.HandleFunc("/", a.IndexHandler()).Methods("GET")
-	a.Router.HandleFunc("/cliente", a.CreateClientHandler()).Methods("POST")
-	a.Router.HandleFunc("/cliente/{uuid}", a.UpdateClientHandler()).Methods("PUT")
-	a.Router.HandleFunc("/cliente/{uuid}", a.GetClientByIDHandler()).Methods("GET")
-	a.Router.HandleFunc("/clientes", a.GetClientsHandler()).Methods("GET")
-	a.Router.HandleFunc("/cliente/{uuid}", a.DeleteClientHandler()).Methods("DELETE")
+	a.Router.HandleFunc("/client", a.CreateClientHandler()).Methods("POST")
+	a.Router.HandleFunc("/client/{uuid}", a.UpdateClientHandler()).Methods("PUT")
+	a.Router.HandleFunc("/client/{uuid}", a.GetClientByIDHandler()).Methods("GET")
+	a.Router.HandleFunc("/clients", a.GetClientsHandler()).Methods("GET")
+	a.Router.HandleFunc("/client/{uuid}", a.DeleteClientHandler()).Methods("DELETE")
 
 }
 
